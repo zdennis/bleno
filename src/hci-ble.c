@@ -6,6 +6,7 @@
 #include <sys/prctl.h>
 #include <unistd.h>
 
+
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
 #include <bluetooth/hci_lib.h>
@@ -16,6 +17,7 @@ static void signalHandler(int signal) {
   lastSignal = signal;
 }
 
+//hci_le_set_advertising_data(hciSocket, (uint8_t*)&advertisementDataBuf, advertisementDataLen, 1000);
 int hci_le_set_advertising_data(int dd, uint8_t* data, uint8_t length, int to)
 {
   struct hci_request rq;
@@ -25,6 +27,12 @@ int hci_le_set_advertising_data(int dd, uint8_t* data, uint8_t length, int to)
   memset(&data_cp, 0, sizeof(data_cp));
   data_cp.length = length;
   memcpy(&data_cp.data, data, sizeof(data_cp.data));
+
+  printf("in hci_le_set_advertising_data:");
+  for (int j = 0; j < sizeof(data_cp.data)/sizeof(data_cp.data[0]) ; j++) {
+    printf(data_cp.data[i]);
+  }
+  printf("\n");
 
   memset(&rq, 0, sizeof(rq));
   rq.ogf = OGF_LE_CTL;
@@ -215,7 +223,7 @@ int main(int argc, const char* argv[])
         // set advertisement and scan data
         printf("Setting advertising data");
         hci_le_set_advertising_data(hciSocket, (uint8_t*)&advertisementDataBuf, advertisementDataLen, 1000);
-        hci_le_set_scan_response_data(hciSocket, (uint8_t*)&scanDataBuf, scanDataLen, 1000);
+        //hci_le_set_scan_response_data(hciSocket, (uint8_t*)&scanDataBuf, scanDataLen, 1000);
 
         // start advertising
         hci_le_set_advertise_enable(hciSocket, 1, 1000);
