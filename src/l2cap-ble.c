@@ -78,7 +78,7 @@ int main(int argc, const char* argv[]) {
   if (hci_read_bd_addr(hciSocket, &daddr, 1000) == -1){
     daddr = *BDADDR_ANY;
   }
-  close(hciSocket);
+  //close(hciSocket);
 
   // bind
   memset(&sockAddr, 0, sizeof(sockAddr));
@@ -107,6 +107,25 @@ int main(int argc, const char* argv[]) {
       if (SIGINT == lastSignal || SIGKILL == lastSignal) {
         break;
       }
+
+      if (SIGUSR1 == lastSignal) {
+        int8_t rssi = 0;
+
+        for (i = 0; i < 100; i++) {
+          hci_read_rssi(hciSocket, hciHandle, &rssi, 1000);
+
+          if (rssi != 0) {
+            break;
+          }
+        }
+        
+        if (rssi == 0) {
+          rssi = 127;
+        }
+
+        printf("rssi = %d\n", rssi);
+      }
+
     } else if (result && FD_ISSET(serverL2capSock, &afds)) {
       sockAddrLen = sizeof(sockAddr);
       clientL2capSock = accept(serverL2capSock, (struct sockaddr *)&sockAddr, &sockAddrLen);
@@ -203,6 +222,7 @@ int main(int argc, const char* argv[]) {
 
   printf("close\n");
   close(serverL2capSock);
+  close(hciSocket);
 
   return 0;
 }
