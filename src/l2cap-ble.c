@@ -30,6 +30,10 @@ int main(int argc, const char* argv[]) {
   bdaddr_t clientBdAddr;
   int clientL2capSock;
 
+  struct l2cap_conninfo l2capConnInfo;
+  socklen_t l2capConnInfoLen;
+  int hciHandle;
+
   fd_set afds;
   fd_set rfds;
   struct timeval tv;
@@ -129,6 +133,10 @@ int main(int argc, const char* argv[]) {
     } else if (result && FD_ISSET(serverL2capSock, &afds)) {
       sockAddrLen = sizeof(sockAddr);
       clientL2capSock = accept(serverL2capSock, (struct sockaddr *)&sockAddr, &sockAddrLen);
+
+      l2capConnInfoLen = sizeof(l2capConnInfo);
+      getsockopt(clientL2capSock, SOL_L2CAP, L2CAP_CONNINFO, &l2capConnInfo, &l2capConnInfoLen);
+      hciHandle = l2capConnInfo.hci_handle;
 
       baswap(&clientBdAddr, &sockAddr.l2_bdaddr);
       printf("accept %s\n", batostr(&clientBdAddr));
