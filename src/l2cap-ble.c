@@ -113,21 +113,29 @@ int main(int argc, const char* argv[]) {
       }
 
       if (SIGUSR1 == lastSignal) {
+        printf("try to read rssi\n");
         int8_t rssi = 0;
 
-        for (i = 0; i < 100; i++) {
-          hci_read_rssi(hciSocket, hciHandle, &rssi, 1000);
+        if(hciHandle){
+          printf("try to read rssi(has hcihandle)\n");
 
-          if (rssi != 0) {
-            break;
+          for (i = 0; i < 100; i++) {
+            hci_read_rssi(hciSocket, hciHandle, &rssi, 1000);
+
+            if (rssi != 0) {
+              break;
+            }
           }
-        }
-        
-        if (rssi == 0) {
-          rssi = 127;
-        }
+          
+          if (rssi == 0) {
+            rssi = 127;
+          }
 
-        printf("rssi = %d\n", rssi);
+          printf("rssi = %d\n", rssi);
+
+        } else {
+          printf("try to read rssi(NO hcihandle)\n");
+        }
       }
 
     } else if (result && FD_ISSET(serverL2capSock, &afds)) {
